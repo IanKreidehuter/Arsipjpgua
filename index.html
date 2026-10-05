@@ -1,1451 +1,177 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JLPT N5 Kanji Quiz</title>
-  
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+JP:wght@500;700&display=swap" rel="stylesheet">
-  
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <style>
-    :root {
-      --bg-color: #f4f3f8;
-      --card-bg: #ffffff;
-      --primary: #7c3aed;
-      --primary-light: #f3f0ff;
-      --primary-hover: #6d28d9;
-      --text-main: #1f2937;
-      --text-muted: #6b7280;
-      --border-color: #e5e7eb;
-      --option-bg: #f8fafc;
-      --option-border: #f1f5f9;
-      
-      --correct-bg: #ecfdf5;
-      --correct-border: #10b981;
-      --correct-text: #065f46;
-      
-      --incorrect-bg: #fef2f2;
-      --incorrect-border: #ef4444;
-      --incorrect-text: #991b1b;
-
-      --radius-card: 28px;
-      --radius-btn: 18px;
-      --radius-pill: 9999px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 16px;
-    }
-
-    /* Container */
-    .app-container {
-      width: 100%;
-      max-width: 440px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin: 0 auto;
-    }
-
-    /* Top Navigation Header */
-    .top-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      padding: 4px 0;
-    }
-
-    .btn-back-domain {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      text-decoration: none;
-      padding: 8px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 0.85rem;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      backdrop-filter: blur(8px);
-    }
-
-    .btn-back-domain:hover {
-      background: var(--card-bg);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .nav-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    /* Progress Header (Matching Reference UI) */
-    .progress-header {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .progress-track {
-      flex: 1;
-      height: 10px;
-      background-color: #e2e8f0;
-      border-radius: var(--radius-pill);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background-color: var(--primary);
-      width: 10%;
-      border-radius: var(--radius-pill);
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .progress-text {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      min-width: 36px;
-      text-align: right;
-    }
-
-    /* Main Quiz Card (Matching Reference UI) */
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius-card);
-      padding: 24px;
-      box-shadow: 0 12px 32px rgba(100, 100, 120, 0.06);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      width: 100%;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      align-self: flex-start;
-      background: var(--primary-light);
-      color: var(--primary);
-      padding: 6px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 0.8rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    /* Question Display Area */
-    .question-area {
-      text-align: center;
-      padding: 16px 0 24px 0;
-      position: relative;
-    }
-
-    .kanji-display {
-      font-family: 'Noto Sans JP', sans-serif;
-      font-size: 3.5rem;
-      font-weight: 700;
-      color: var(--text-main);
-      line-height: 1.1;
-      margin-bottom: 8px;
-    }
-
-    .text-prompt-display {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 8px;
-    }
-
-    /* Audio Speaker Button */
-    .btn-audio {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #f1f5f9;
-      border: none;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-audio:hover {
-      background: var(--primary-light);
-      color: var(--primary);
-    }
-
-    /* Instruction Label */
-    .instruction-text {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-      padding-top: 12px;
-      border-top: 1px solid #f1f5f9;
-    }
-
-    /* Options List */
-    .options-container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .option-btn {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      padding: 16px 18px;
-      background-color: var(--option-bg);
-      border: 2px solid var(--option-border);
-      border-radius: var(--radius-btn);
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.2s ease;
-      font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-main);
-      outline: none;
-    }
-
-    .option-btn:hover:not(:disabled) {
-      border-color: #cbd5e1;
-      background-color: #ffffff;
-    }
-
-    .radio-indicator {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid #cbd5e1;
-      margin-right: 14px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-    }
-
-    .radio-indicator::after {
-      content: '';
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: transparent;
-      transition: all 0.2s ease;
-    }
-
-    /* Option States */
-    .option-btn.selected {
-      border-color: var(--primary);
-      background-color: var(--primary-light);
-    }
-
-    .option-btn.selected .radio-indicator {
-      border-color: var(--primary);
-    }
-
-    .option-btn.selected .radio-indicator::after {
-      background: var(--primary);
-    }
-
-    .option-btn.correct {
-      border-color: var(--correct-border) !important;
-      background-color: var(--correct-bg) !important;
-      color: var(--correct-text) !important;
-    }
-
-    .option-btn.correct .radio-indicator {
-      border-color: var(--correct-border);
-      background-color: var(--correct-border);
-    }
-
-    .option-btn.correct .radio-indicator::after {
-      background: #ffffff;
-    }
-
-    .option-btn.incorrect {
-      border-color: var(--incorrect-border) !important;
-      background-color: var(--incorrect-bg) !important;
-      color: var(--incorrect-text) !important;
-    }
-
-    .option-btn.incorrect .radio-indicator {
-      border-color: var(--incorrect-border);
-      background-color: var(--incorrect-border);
-    }
-
-    .option-btn.incorrect .radio-indicator::after {
-      background: #ffffff;
-    }
-
-    .option-text {
-      flex: 1;
-      line-height: 1.4;
-    }
-
-    /* Bottom Action Area */
-    .bottom-action-area {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .btn-primary {
-      width: 100%;
-      padding: 16px;
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      border-radius: var(--radius-pill);
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: background-color 0.2s ease, transform 0.1s ease;
-      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
-    }
-
-    .btn-primary:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .btn-primary:active {
-      transform: scale(0.98);
-    }
-
-    .btn-secondary {
-      width: 100%;
-      padding: 14px;
-      background-color: transparent;
-      color: var(--text-muted);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-pill);
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: center;
-    }
-
-    .btn-secondary:hover {
-      background-color: #ffffff;
-      color: var(--text-main);
-    }
-
-    /* Mode Selection Screen */
-    .mode-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .mode-card {
-      background: var(--card-bg);
-      border: 2px solid var(--border-color);
-      border-radius: var(--radius-btn);
-      padding: 18px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .mode-card:hover {
-      border-color: var(--primary);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.04);
-    }
-
-    .mode-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .mode-desc {
-      font-size: 0.825rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    /* Result View */
-    .result-container {
-      text-align: center;
-      padding: 20px 0;
-    }
-
-    .score-circle {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: var(--primary-light);
-      color: var(--primary);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px auto;
-      border: 4px solid var(--primary);
-    }
-
-    .score-value {
-      font-size: 2rem;
-      font-weight: 800;
-      line-height: 1;
-    }
-
-    .score-percentage {
-      font-size: 0.9rem;
-      font-weight: 700;
-      margin-top: 4px;
-    }
-
-    /* Kanji Study List & Detail View */
-    .search-box {
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--border-color);
-      font-size: 0.95rem;
-      margin-bottom: 16px;
-      outline: none;
-    }
-
-    .search-box:focus {
-      border-color: var(--primary);
-    }
-
-    .kanji-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      max-height: 380px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .kanji-grid-item {
-      background: var(--option-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      aspect-ratio: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .kanji-grid-item:hover {
-      border-color: var(--primary);
-      background: var(--primary-light);
-    }
-
-    .kanji-grid-item .k-char {
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-
-    .kanji-grid-item .k-mean {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 90%;
-    }
-
-    /* Detail Modal Section */
-    .detail-section {
-      text-align: left;
-      margin-top: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .detail-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .detail-val {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .compound-item {
-      background: var(--option-bg);
-      padding: 10px 14px;
-      border-radius: 12px;
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .compound-word {
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .compound-sub {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-align: right;
-    }
-
-    /* Explanation Banner Post-Answer */
-    .explanation-banner {
-      background: #f8fafc;
-      border-radius: 14px;
-      padding: 12px 16px;
-      margin-top: 12px;
-      font-size: 0.875rem;
-      line-height: 1.4;
-      border-left: 4px solid var(--primary);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N4 Summer Adventure - Japanese Learning</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Background is handled via CSS cover -->
+    <div class="bg-overlay"></div>
 
-  <div class="app-container">
-    
-    <!-- Navigation Bar -->
-    <nav class="top-nav">
-      <a href="https://iankreidehuter.space" class="btn-back-domain">
-        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
-        Domain
-      </a>
-      <span class="nav-title">JLPT N5 Kanji</span>
-      <div style="width: 60px;"></div> <!-- Spacer -->
+    <div id="app-container">
+        <!-- Error / Loading Overlay -->
+        <div id="status-overlay" class="active">
+            <div class="spinner"></div>
+            <p id="status-message">Memuat petualangan...</p>
+        </div>
+
+        <!-- Desktop Sidebar / Mobile Top bar (Hidden on Home) -->
+        <nav id="main-nav">
+            <div class="nav-brand">N4 Summer</div>
+            <div class="nav-links">
+                <button class="nav-btn active" data-target="home">Home</button>
+                <button class="nav-btn" data-target="intro-kotoba">Kotoba</button>
+                <button class="nav-btn" data-target="intro-kanji">Kanji</button>
+                <button class="nav-btn" data-target="intro-grammar">Grammar</button>
+                <button class="nav-btn" data-target="intro-quiz">Quiz</button>
+            </div>
+        </nav>
+
+        <main id="main-content">
+            <!-- 1. HOME VIEW -->
+            <section id="view-home" class="view active">
+                <div class="hero-poster">
+                    <h1>Japanese N4</h1>
+                    <h2>言葉と漢字を学ぼう</h2>
+                    <p>Learn Japanese vocabulary and Kanji</p>
+                </div>
+                <div class="home-menu">
+                    <div class="menu-card" data-target="intro-kotoba">
+                        <h3>KOTOBA</h3>
+                        <p>294 Vocabulary</p>
+                    </div>
+                    <div class="menu-card" data-target="intro-kanji">
+                        <h3>KANJI</h3>
+                        <p>197 Characters</p>
+                    </div>
+                    <div class="menu-card" data-target="intro-kanji-swipe">
+                        <h3>KANJI CARDS</h3>
+                        <p>Flashcard Mode</p>
+                    </div>
+                    <div class="menu-card" data-target="intro-kotoba-swipe">
+                        <h3>KOTOBA CARDS</h3>
+                        <p>Flashcard Mode</p>
+                    </div>
+                    <div class="menu-card" data-target="intro-grammar">
+                        <h3>GRAMMAR</h3>
+                        <p>文法</p>
+                    </div>
+                    <div class="menu-card" data-target="intro-quiz">
+                        <h3>QUIZ</h3>
+                        <p>クイズ</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. INTRO POSTER VIEW (Dynamic) -->
+            <section id="view-intro" class="view">
+                <div class="intro-poster-container">
+                    <h1 id="intro-title">TITLE</h1>
+                    <h2 id="intro-subtitle">Subtitle</h2>
+                    <p id="intro-desc">Description</p>
+                    <button id="intro-play-btn" class="play-btn">
+                        <span class="play-icon">▶</span> PLAY
+                    </button>
+                    <button class="back-text-btn" onclick="app.navigate('home')">← Back to Home</button>
+                </div>
+            </section>
+
+            <!-- 3. KOTOBA LIST VIEW -->
+            <section id="view-kotoba-list" class="view">
+                <div class="view-header">
+                    <h2>Kotoba Dictionary</h2>
+                    <div class="controls">
+                        <input type="text" id="kotoba-search" placeholder="Search hiragana, kanji, meaning...">
+                        <select id="kotoba-filter">
+                            <option value="all">All Categories (Bab)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-grid" id="kotoba-grid"></div>
+            </section>
+
+            <!-- 4. KANJI LIST VIEW -->
+            <section id="view-kanji-list" class="view">
+                <div class="view-header">
+                    <h2>Kanji Dictionary</h2>
+                    <div class="controls">
+                        <input type="text" id="kanji-search" placeholder="Search kanji, reading, meaning...">
+                    </div>
+                </div>
+                <div class="card-grid" id="kanji-grid"></div>
+            </section>
+
+            <!-- 5. KOTOBA DETAIL VIEW -->
+            <section id="view-kotoba-detail" class="view detail-view">
+                <button class="back-btn" onclick="app.navigate('kotoba-list')">← Back</button>
+                <div class="detail-card">
+                    <div class="detail-category" id="kd-bab">Category</div>
+                    <div class="detail-hiragana" id="kd-hiragana">ひらがな</div>
+                    <div class="detail-kanji" id="kd-kanji">漢字</div>
+                    <div class="detail-meaning" id="kd-arti">arti</div>
+                </div>
+            </section>
+
+            <!-- 6. KANJI DETAIL VIEW -->
+            <section id="view-kanji-detail" class="view detail-view">
+                <button class="back-btn" onclick="app.navigate('kanji-list')">← Back</button>
+                <div class="detail-card kanji-detail">
+                    <div class="kd-main-char" id="kand-kanji">漢</div>
+                    <div class="kd-meaning" id="kand-arti">arti</div>
+                    <div class="reading-grid">
+                        <div class="reading-box">
+                            <span>ON</span>
+                            <div id="kand-on">ON</div>
+                        </div>
+                        <div class="reading-box">
+                            <span>KUN</span>
+                            <div id="kand-kun">kun</div>
+                        </div>
+                    </div>
+                    <div class="example-words">
+                        <h3>Examples:</h3>
+                        <ul id="kand-kotoba-list"></ul>
+                    </div>
+                    <div class="source-page" id="kand-page">Source page: X</div>
+                </div>
+            </section>
+
+            <!-- 7. SWIPE CARDS VIEW (Reusable for Kanji & Kotoba) -->
+            <section id="view-swipe" class="view">
+                <button class="back-btn swipe-back" onclick="app.navigate('home')">← Home</button>
+                <div class="swipe-container">
+                    <div class="swipe-progress">
+                        <span id="swipe-current">1</span> / <span id="swipe-total">197</span>
+                    </div>
+                    <div class="swipe-card" id="swipe-card-element">
+                        <!-- Content injected via JS -->
+                    </div>
+                    <div class="swipe-controls">
+                        <button id="btn-prev" class="control-btn">← Prev</button>
+                        <button id="btn-shuffle" class="control-btn shuffle-btn">Shuffle</button>
+                        <button id="btn-next" class="control-btn">Next →</button>
+                    </div>
+                    <p class="swipe-hint">Swipe left/right on mobile</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Mobile Bottom Nav -->
+    <nav id="mobile-nav">
+        <button class="nav-btn active" data-target="home">Home</button>
+        <button class="nav-btn" data-target="intro-kotoba">Kotoba</button>
+        <button class="nav-btn" data-target="intro-kanji">Kanji</button>
+        <button class="nav-btn" data-target="intro-grammar">Grammar</button>
+        <button class="nav-btn" data-target="intro-quiz">Quiz</button>
     </nav>
 
-    <!-- Quiz Progress Bar Header (Visible in Quiz View) -->
-    <div id="progress-header" class="progress-header hidden">
-      <div class="progress-track">
-        <div id="progress-fill" class="progress-fill"></div>
-      </div>
-      <div id="progress-text" class="progress-text">1/10</div>
-    </div>
-
-    <!-- VIEW 1: MODE SELECTOR SCREEN -->
-    <div id="view-mode-select" class="card">
-      <span class="badge">Mode Pembelajaran</span>
-      <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 6px;">Pilih Mode Kuis</h2>
-      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
-        Uji kemampuan Kanji JLPT N5 kamu dengan berbagai metode.
-      </p>
-
-      <div class="mode-grid">
-        <div class="mode-card" onclick="startQuiz(1)">
-          <div>
-            <div class="mode-title">1. Kanji → Arti</div>
-            <div class="mode-desc">Tebak arti Bahasa Indonesia dari Kanji</div>
-          </div>
-          <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
-        </div>
-
-        <div class="mode-card" onclick="startQuiz(2)">
-          <div>
-            <div class="mode-title">2. Arti → Kanji</div>
-            <div class="mode-desc">Pilih Kanji yang sesuai dengan arti</div>
-          </div>
-          <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
-        </div>
-
-        <div class="mode-card" onclick="startQuiz(3)">
-          <div>
-            <div class="mode-title">3. Bacaan → Kanji</div>
-            <div class="mode-desc">Cari Kanji berdasarkan bacaan Hiragana</div>
-          </div>
-          <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
-        </div>
-
-        <div class="mode-card" onclick="startQuiz(4)">
-          <div>
-            <div class="mode-title">4. Kanji → Hiragana</div>
-            <div class="mode-desc">Tebak cara baca Hiragana dari Kanji</div>
-          </div>
-          <i data-lucide="chevron-right" style="color: var(--text-muted);"></i>
-        </div>
-      </div>
-
-      <div style="margin-top: 20px;">
-        <button class="btn-secondary" onclick="showView('study')">
-          <i data-lucide="book-open" style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i>
-          Pelajari Semua Kanji N5
-        </button>
-      </div>
-    </div>
-
-    <!-- VIEW 2: QUIZ CARD SCREEN -->
-    <div id="view-quiz" class="card hidden">
-      <span id="quiz-mode-badge" class="badge">Kanji → Arti</span>
-
-      <div class="question-area">
-        <div id="question-text" class="kanji-display">食</div>
-        <button class="btn-audio" id="btn-speaker" aria-label="Putar Audio Bacaan" onclick="playQuestionAudio()">
-          <i data-lucide="volume-2" style="width: 20px; height: 20px;"></i>
-        </button>
-      </div>
-
-      <div class="instruction-text" id="instruction-label">
-        Q. Pilih jawaban yang paling tepat:
-      </div>
-
-      <div class="options-container" id="options-container">
-        <!-- Rendered dynamically -->
-      </div>
-
-      <div id="explanation-box" class="explanation-banner hidden">
-        <!-- Explanatory feedback -->
-      </div>
-
-      <div class="bottom-action-area">
-        <button id="btn-submit" class="btn-primary" onclick="handleActionClick()" disabled style="opacity: 0.5;">
-          Periksa Jawaban
-        </button>
-      </div>
-    </div>
-
-    <!-- VIEW 3: RESULT SCREEN -->
-    <div id="view-result" class="card hidden">
-      <span class="badge">Hasil Kuis</span>
-      
-      <div class="result-container">
-        <div class="score-circle">
-          <span class="score-value" id="score-text">8/10</span>
-          <span class="score-percentage" id="score-percent">80%</span>
-        </div>
-        <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 6px;">Kuis Selesai!</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem;" id="result-feedback-msg">
-          Kerja bagus! Latihan terus untuk memperkuat ingatan Kanji N5.
-        </p>
-      </div>
-
-      <div class="bottom-action-area">
-        <button class="btn-primary" onclick="restartQuiz()">
-          <i data-lucide="rotate-ccw" style="width: 18px; height: 18px;"></i>
-          Ulangi Kuis
-        </button>
-        <button class="btn-secondary" onclick="showView('mode-select')">
-          Pilih Mode Lain
-        </button>
-        <button class="btn-secondary" onclick="showView('study')">
-          Pelajari Kanji
-        </button>
-      </div>
-    </div>
-
-    <!-- VIEW 4: KANJI STUDY & DETAIL LIST VIEW -->
-    <div id="view-study" class="card hidden">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <span class="badge" style="margin-bottom:0;">Daftar Kanji N5</span>
-        <button class="btn-secondary" style="padding: 4px 12px; width: auto; font-size: 0.8rem;" onclick="showView('mode-select')">Kembali</button>
-      </div>
-
-      <input type="text" id="study-search" class="search-box" placeholder="Cari Kanji atau arti..." oninput="filterKanjiGrid()">
-
-      <div class="kanji-grid" id="kanji-grid">
-        <!-- Grid list dynamically populated -->
-      </div>
-    </div>
-
-    <!-- VIEW 5: KANJI SINGLE DETAIL VIEW -->
-    <div id="view-detail" class="card hidden">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <span class="badge" style="margin-bottom:0;">Detail Kanji</span>
-        <button class="btn-secondary" style="padding: 4px 12px; width: auto; font-size: 0.8rem;" onclick="showView('study')">Kembali</button>
-      </div>
-
-      <div class="question-area" style="padding-bottom: 12px;">
-        <div id="detail-kanji-char" class="kanji-display">食</div>
-        <button class="btn-audio" onclick="playDetailAudio()">
-          <i data-lucide="volume-2" style="width: 20px; height: 20px;"></i>
-        </button>
-      </div>
-
-      <div class="detail-section">
-        <div>
-          <div class="detail-label">Arti (Indonesia)</div>
-          <div class="detail-val" id="detail-meaning">makan; makanan</div>
-        </div>
-
-        <div style="display: flex; gap: 20px;">
-          <div>
-            <div class="detail-label">Onyomi</div>
-            <div class="detail-val" id="detail-onyomi">ショク, ジキ</div>
-          </div>
-          <div>
-            <div class="detail-label">Kunyomi</div>
-            <div class="detail-val" id="detail-kunyomi">たべる, くう</div>
-          </div>
-        </div>
-
-        <div>
-          <div class="detail-label" style="margin-bottom: 4px;">Kosakata Gabungan (Compounds)</div>
-          <div id="detail-compounds-list">
-            <!-- Render compounds -->
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- SCRIPT & DATA ARCHITECTURE -->
-  <script>
-    /* ==================================================
-       KANJI DATASET (JLPT N5 SINGLE SOURCE OF TRUTH)
-       ================================================== */
-    const kanjiData = [
-      {
-        "kanji": "食",
-        "onyomi": ["ショク", "ジキ"],
-        "kunyomi": ["たべる", "くう"],
-        "meaning_id": "makan; makanan",
-        "compounds": [
-          { "word": "食べる", "reading": "たべる", "meaning_id": "makan" },
-          { "word": "食事", "reading": "しょくじ", "meaning_id": "makan; makanan" },
-          { "word": "食堂", "reading": "しょくどう", "meaning_id": "kantin; ruang makan" }
-        ]
-      },
-      {
-        "kanji": "飲",
-        "onyomi": ["イン"],
-        "kunyomi": ["のむ"],
-        "meaning_id": "minum",
-        "compounds": [
-          { "word": "飲む", "reading": "のむ", "meaning_id": "minum" },
-          { "word": "飲み物", "reading": "のみもの", "meaning_id": "minuman" },
-          { "word": "飲食店", "reading": "いんしょくてん", "meaning_id": "restoran" }
-        ]
-      },
-      {
-        "kanji": "見",
-        "onyomi": ["ケン"],
-        "kunyomi": ["みる", "みえる", "みせる"],
-        "meaning_id": "melihat; tampak",
-        "compounds": [
-          { "word": "見る", "reading": "みる", "meaning_id": "melihat" },
-          { "word": "意見", "reading": "いけん", "meaning_id": "pendapat" },
-          { "word": "見物", "reading": "けんぶつ", "meaning_id": "tamasya" }
-        ]
-      },
-      {
-        "kanji": "書",
-        "onyomi": ["ショ"],
-        "kunyomi": ["かく"],
-        "meaning_id": "menulis; buku",
-        "compounds": [
-          { "word": "書く", "reading": "かく", "meaning_id": "menulis" },
-          { "word": "図書館", "reading": "としょかん", "meaning_id": "perpustakaan" },
-          { "word": "辞書", "reading": "じしょ", "meaning_id": "kamus" }
-        ]
-      },
-      {
-        "kanji": "行",
-        "onyomi": ["コウ", "ギョウ"],
-        "kunyomi": ["いく", "おこなう"],
-        "meaning_id": "pergi; melakukan",
-        "compounds": [
-          { "word": "行く", "reading": "いく", "meaning_id": "pergi" },
-          { "word": "銀行", "reading": "ぎんこう", "meaning_id": "bank" },
-          { "word": "旅行", "reading": "りょこう", "meaning_id": "bepergian / liburan" }
-        ]
-      },
-      {
-        "kanji": "一",
-        "onyomi": ["イチ", "イツ"],
-        "kunyomi": ["ひと", "ひとつ"],
-        "meaning_id": "satu",
-        "compounds": [
-          { "word": "一つ", "reading": "ひとつ", "meaning_id": "satu buah" },
-          { "word": "一人", "reading": "ひとり", "meaning_id": "satu orang" },
-          { "word": "一日", "reading": "いちにち", "meaning_id": "satu hari" }
-        ]
-      },
-      {
-        "kanji": "二",
-        "onyomi": ["ニ"],
-        "kunyomi": ["ふた", "ふたつ"],
-        "meaning_id": "dua",
-        "compounds": [
-          { "word": "二つ", "reading": "ふたつ", "meaning_id": "dua buah" },
-          { "word": "二人", "reading": "ふたり", "meaning_id": "dua orang" },
-          { "word": "二月", "reading": "にがつ", "meaning_id": "Februari" }
-        ]
-      },
-      {
-        "kanji": "三",
-        "onyomi": ["サン"],
-        "kunyomi": ["み", "みつ", "みっつ"],
-        "meaning_id": "tiga",
-        "compounds": [
-          { "word": "三つ", "reading": "みっつ", "meaning_id": "tiga buah" },
-          { "word": "三人", "reading": "さんにん", "meaning_id": "tiga orang" },
-          { "word": "三月", "reading": "さんがつ", "meaning_id": "Maret" }
-        ]
-      },
-      {
-        "kanji": "四",
-        "onyomi": ["シ"],
-        "kunyomi": ["よ", "よつ", "よっつ", "よん"],
-        "meaning_id": "empat",
-        "compounds": [
-          { "word": "四つ", "reading": "よっつ", "meaning_id": "empat buah" },
-          { "word": "四人", "reading": "よにん", "meaning_id": "empat orang" },
-          { "word": "四月", "reading": "しがつ", "meaning_id": "April" }
-        ]
-      },
-      {
-        "kanji": "五",
-        "onyomi": ["ゴ"],
-        "kunyomi": ["いつ", "いつつ"],
-        "meaning_id": "lima",
-        "compounds": [
-          { "word": "五つ", "reading": "いつつ", "meaning_id": "lima buah" },
-          { "word": "五人", "reading": "ごにん", "meaning_id": "lima orang" },
-          { "word": "五月", "reading": "ごがつ", "meaning_id": "Mei" }
-        ]
-      },
-      {
-        "kanji": "日",
-        "onyomi": ["ニチ", "ジツ"],
-        "kunyomi": ["ひ", "か"],
-        "meaning_id": "hari; matahari",
-        "compounds": [
-          { "word": "日本", "reading": "にほん", "meaning_id": "Jepang" },
-          { "word": "今日", "reading": "きょう", "meaning_id": "hari ini" },
-          { "word": "毎日", "reading": "まいにち", "meaning_id": "setiap hari" }
-        ]
-      },
-      {
-        "kanji": "月",
-        "onyomi": ["ゲツ", "ガツ"],
-        "kunyomi": ["つき"],
-        "meaning_id": "bulan",
-        "compounds": [
-          { "word": "月曜日", "reading": "げつようび", "meaning_id": "hari Senin" },
-          { "word": "今月", "reading": "こんげつ", "meaning_id": "bulan ini" }
-        ]
-      },
-      {
-        "kanji": "火",
-        "onyomi": ["カ"],
-        "kunyomi": ["ひ"],
-        "meaning_id": "api",
-        "compounds": [
-          { "word": "火曜日", "reading": "かようび", "meaning_id": "hari Selasa" },
-          { "word": "火山", "reading": "かざん", "meaning_id": "gunung berapi" }
-        ]
-      },
-      {
-        "kanji": "水",
-        "onyomi": ["スイ"],
-        "kunyomi": ["みず"],
-        "meaning_id": "air",
-        "compounds": [
-          { "word": "水曜日", "reading": "すいようび", "meaning_id": "hari Rabu" },
-          { "word": "水道", "reading": "すいどう", "meaning_id": "saluran air" }
-        ]
-      },
-      {
-        "kanji": "木",
-        "onyomi": ["モク", "ボク"],
-        "kunyomi": ["き"],
-        "meaning_id": "pohon; kayu",
-        "compounds": [
-          { "word": "木曜日", "reading": "もくようび", "meaning_id": "hari Kamis" }
-        ]
-      },
-      {
-        "kanji": "金",
-        "onyomi": ["キン"],
-        "kunyomi": ["かね"],
-        "meaning_id": "emas; uang",
-        "compounds": [
-          { "word": "お金", "reading": "おかね", "meaning_id": "uang" },
-          { "word": "金曜日", "reading": "きんようび", "meaning_id": "hari Jumat" }
-        ]
-      },
-      {
-        "kanji": "土",
-        "onyomi": ["ド", "ト"],
-        "kunyomi": ["つち"],
-        "meaning_id": "tanah",
-        "compounds": [
-          { "word": "土曜日", "reading": "どようび", "meaning_id": "hari Sabtu" }
-        ]
-      },
-      {
-        "kanji": "山",
-        "onyomi": ["サン"],
-        "kunyomi": ["やま"],
-        "meaning_id": "gunung",
-        "compounds": [
-          { "word": "富士山", "reading": "ふじさん", "meaning_id": "Gunung Fuji" }
-        ]
-      },
-      {
-        "kanji": "川",
-        "onyomi": ["セン"],
-        "kunyomi": ["かわ"],
-        "meaning_id": "sungai",
-        "compounds": [
-          { "word": "小川", "reading": "おがわ", "meaning_id": "sungai kecil" }
-        ]
-      },
-      {
-        "kanji": "人",
-        "onyomi": ["ジン", "ニン"],
-        "kunyomi": ["ひと"],
-        "meaning_id": "orang",
-        "compounds": [
-          { "word": "日本人", "reading": "にほんじん", "meaning_id": "orang Jepang" },
-          { "word": "外国人", "reading": "がいこくじん", "meaning_id": "orang asing" }
-        ]
-      }
-    ];
-
-    /* ==================================================
-       GLOBAL STATE VARIABLES
-       ================================================== */
-    let currentMode = 1;
-    let quizQuestions = [];
-    let currentQuestionIndex = 0;
-    let userScore = 0;
-    let selectedOptionIndex = null;
-    let isAnswerChecked = false;
-    let selectedDetailKanji = null;
-
-    /* Mode Titles for Badges */
-    const modeNames = {
-      1: "Kanji → Arti",
-      2: "Arti → Kanji",
-      3: "Bacaan → Kanji",
-      4: "Kanji → Hiragana"
-    };
-
-    /* ==================================================
-       UTILITY FUNCTIONS
-       ================================================== */
-    function shuffleArray(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    function getRandomDistractors(correctKanji, count = 3) {
-      const filtered = kanjiData.filter(item => item.kanji !== correctKanji.kanji);
-      const shuffled = shuffleArray(filtered);
-      return shuffled.slice(0, count);
-    }
-
-    function getPrimaryReading(kanjiItem) {
-      if (kanjiItem.kunyomi && kanjiItem.kunyomi.length > 0) {
-        return kanjiItem.kunyomi[0];
-      }
-      if (kanjiItem.onyomi && kanjiItem.onyomi.length > 0) {
-        return kanjiItem.onyomi[0];
-      }
-      return "";
-    }
-
-    /* Speech Synthesis Function */
-    function speakJapaneseText(text) {
-      if (!('speechSynthesis' in window)) return;
-      try {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ja-JP';
-        utterance.rate = 0.9;
-        window.speechSynthesis.speak(utterance);
-      } catch (e) {
-        console.warn("Speech Synthesis error or unsupported", e);
-      }
-    }
-
-    /* ==================================================
-       QUESTION GENERATOR LOGIC
-       ================================================== */
-    function generateQuizSet(mode, total = 10) {
-      const shuffledDataset = shuffleArray(kanjiData);
-      const selectedDataset = shuffledDataset.slice(0, Math.min(total, shuffledDataset.length));
-      
-      return selectedDataset.map(targetKanji => {
-        const distractors = getRandomDistractors(targetKanji, 3);
-        let promptText = "";
-        let audioReading = "";
-        let options = [];
-        let correctAnswerIndex = 0;
-
-        const targetReading = getPrimaryReading(targetKanji);
-
-        if (mode === 1) {
-          // Kanji -> Arti
-          // Option format: "hiragana — Indonesian meaning"
-          promptText = targetKanji.kanji;
-          audioReading = targetReading;
-          
-          const targetOptionText = `${targetReading} — ${targetKanji.meaning_id}`;
-          const distractorOptionsText = distractors.map(d => `${getPrimaryReading(d)} — ${d.meaning_id}`);
-          
-          const rawOptions = [
-            { text: targetOptionText, isCorrect: true },
-            ...distractorOptionsText.map(txt => ({ text: txt, isCorrect: false }))
-          ];
-          
-          const shuffledOptions = shuffleArray(rawOptions);
-          options = shuffledOptions.map(o => o.text);
-          correctAnswerIndex = shuffledOptions.findIndex(o => o.isCorrect);
-
-        } else if (mode === 2) {
-          // Arti -> Kanji
-          promptText = targetKanji.meaning_id;
-          audioReading = targetReading;
-
-          const rawOptions = [
-            { text: targetKanji.kanji, isCorrect: true },
-            ...distractor.map(d => ({ text: d.kanji, isCorrect: false }))
-          ];
-
-          const shuffledOptions = shuffleArray(rawOptions);
-          options = shuffledOptions.map(o => o.text);
-          correctAnswerIndex = shuffledOptions.findIndex(o => o.isCorrect);
-
-        } else if (mode === 3) {
-          // Bacaan -> Kanji
-          promptText = targetReading;
-          audioReading = targetReading;
-
-          const rawOptions = [
-            { text: targetKanji.kanji, isCorrect: true },
-            ...distractor.map(d => ({ text: d.kanji, isCorrect: false }))
-          ];
-
-          const shuffledOptions = shuffleArray(rawOptions);
-          options = shuffledOptions.map(o => o.text);
-          correctAnswerIndex = shuffledOptions.findIndex(o => o.isCorrect);
-
-        } else if (mode === 4) {
-          // Kanji -> Hiragana
-          promptText = targetKanji.kanji;
-          audioReading = targetReading;
-
-          const rawOptions = [
-            { text: targetReading, isCorrect: true },
-            ...distractor.map(d => ({ text: getPrimaryReading(d), isCorrect: false }))
-          ];
-
-          const shuffledOptions = shuffleArray(rawOptions);
-          options = shuffledOptions.map(o => o.text);
-          correctAnswerIndex = shuffledOptions.findIndex(o => o.isCorrect);
-        }
-
-        return {
-          kanjiObj: targetKanji,
-          promptText: promptText,
-          audioReading: audioReading,
-          options: options,
-          correctAnswerIndex: correctAnswerIndex
-        };
-      });
-    }
-
-    /* Helper fix for distractors scoping */
-    function generateQuizSetFixed(mode, total = 10) {
-      const shuffledDataset = shuffleArray(kanjiData);
-      const selectedDataset = shuffledDataset.slice(0, Math.min(total, shuffledDataset.length));
-
-      return selectedDataset.map(targetKanji => {
-        const distractors = getRandomDistractors(targetKanji, 3);
-        let promptText = "";
-        let audioReading = getPrimaryReading(targetKanji);
-        let options = [];
-        let correctAnswerIndex = 0;
-
-        if (mode === 1) {
-          promptText = targetKanji.kanji;
-          const targetOpt = `${audioReading} — ${targetKanji.meaning_id}`;
-          const rawOpts = [
-            { text: targetOpt, isCorrect: true },
-            ...distractors.map(d => ({ text: `${getPrimaryReading(d)} — ${d.meaning_id}`, isCorrect: false }))
-          ];
-          const shuf = shuffleArray(rawOpts);
-          options = shuf.map(o => o.text);
-          correctAnswerIndex = shuf.findIndex(o => o.isCorrect);
-
-        } else if (mode === 2) {
-          promptText = targetKanji.meaning_id;
-          const rawOpts = [
-            { text: targetKanji.kanji, isCorrect: true },
-            ...distractors.map(d => ({ text: d.kanji, isCorrect: false }))
-          ];
-          const shuf = shuffleArray(rawOpts);
-          options = shuf.map(o => o.text);
-          correctAnswerIndex = shuf.findIndex(o => o.isCorrect);
-
-        } else if (mode === 3) {
-          promptText = audioReading;
-          const rawOpts = [
-            { text: targetKanji.kanji, isCorrect: true },
-            ...distractors.map(d => ({ text: d.kanji, isCorrect: false }))
-          ];
-          const shuf = shuffleArray(rawOpts);
-          options = shuf.map(o => o.text);
-          correctAnswerIndex = shuf.findIndex(o => o.isCorrect);
-
-        } else if (mode === 4) {
-          promptText = targetKanji.kanji;
-          const rawOpts = [
-            { text: audioReading, isCorrect: true },
-            ...distractors.map(d => ({ text: getPrimaryReading(d), isCorrect: false }))
-          ];
-          const shuf = shuffleArray(rawOpts);
-          options = shuf.map(o => o.text);
-          correctAnswerIndex = shuf.findIndex(o => o.isCorrect);
-        }
-
-        return {
-          kanjiObj: targetKanji,
-          promptText: promptText,
-          audioReading: audioReading,
-          options: options,
-          correctAnswerIndex: correctAnswerIndex
-        };
-      });
-    }
-
-    /* ==================================================
-       VIEW NAVIGATION LOGIC
-       ================================================== */
-    function showView(viewName) {
-      document.getElementById('view-mode-select').classList.add('hidden');
-      document.getElementById('view-quiz').classList.add('hidden');
-      document.getElementById('view-result').classList.add('hidden');
-      document.getElementById('view-study').classList.add('hidden');
-      document.getElementById('view-detail').classList.add('hidden');
-      document.getElementById('progress-header').classList.add('hidden');
-
-      if (viewName === 'mode-select') {
-        document.getElementById('view-mode-select').classList.remove('hidden');
-      } else if (viewName === 'quiz') {
-        document.getElementById('view-quiz').classList.remove('hidden');
-        document.getElementById('progress-header').classList.remove('hidden');
-      } else if (viewName === 'result') {
-        document.getElementById('view-result').classList.remove('hidden');
-      } else if (viewName === 'study') {
-        document.getElementById('view-study').classList.remove('hidden');
-        renderKanjiGrid();
-      } else if (viewName === 'detail') {
-        document.getElementById('view-detail').classList.remove('hidden');
-      }
-      lucide.createIcons();
-    }
-
-    /* ==================================================
-       QUIZ ENGINE & INTERACTION LOGIC
-       ================================================== */
-    function startQuiz(mode) {
-      currentMode = mode;
-      quizQuestions = generateQuizSetFixed(mode, 10);
-      currentQuestionIndex = 0;
-      userScore = 0;
-      
-      document.getElementById('quiz-mode-badge').innerText = modeNames[mode];
-      showView('quiz');
-      renderQuestion();
-    }
-
-    function restartQuiz() {
-      startQuiz(currentMode);
-    }
-
-    function renderQuestion() {
-      isAnswerChecked = false;
-      selectedOptionIndex = null;
-
-      const q = quizQuestions[currentQuestionIndex];
-      const totalQ = quizQuestions.length;
-
-      // Update progress
-      document.getElementById('progress-fill').style.width = `${((currentQuestionIndex + 1) / totalQ) * 100}%`;
-      document.getElementById('progress-text').innerText = `${currentQuestionIndex + 1}/${totalQ}`;
-
-      // Prompt UI styling (Mode 2 & 3 have non-kanji large text)
-      const promptElem = document.getElementById('question-text');
-      promptElem.innerText = q.promptText;
-      if (currentMode === 2) {
-        promptElem.className = "text-prompt-display";
-      } else {
-        promptElem.className = "kanji-display";
-      }
-
-      // Hide/Show audio speaker based on relevance
-      const btnSpeaker = document.getElementById('btn-speaker');
-      if (q.audioReading) {
-        btnSpeaker.style.display = 'flex';
-      } else {
-        btnSpeaker.style.display = 'none';
-      }
-
-      // Hide explanation banner
-      document.getElementById('explanation-box').classList.add('hidden');
-
-      // Render Options
-      const optionsContainer = document.getElementById('options-container');
-      optionsContainer.innerHTML = '';
-
-      q.options.forEach((optText, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.onclick = () => selectOption(index);
-        btn.innerHTML = `
-          <div class="radio-indicator"></div>
-          <span class="option-text">${optText}</span>
-        `;
-        optionsContainer.appendChild(btn);
-      });
-
-      // Reset Submit Button
-      const btnSubmit = document.getElementById('btn-submit');
-      btnSubmit.innerText = "Periksa Jawaban";
-      btnSubmit.disabled = true;
-      btnSubmit.style.opacity = "0.5";
-
-      lucide.createIcons();
-    }
-
-    function selectOption(index) {
-      if (isAnswerChecked) return;
-
-      selectedOptionIndex = index;
-      const optionBtns = document.querySelectorAll('.option-btn');
-      
-      optionBtns.forEach((btn, idx) => {
-        if (idx === index) {
-          btn.classList.add('selected');
-        } else {
-          btn.classList.remove('selected');
-        }
-      });
-
-      const btnSubmit = document.getElementById('btn-submit');
-      btnSubmit.disabled = false;
-      btnSubmit.style.opacity = "1";
-    }
-
-    function handleActionClick() {
-      if (!isAnswerChecked) {
-        checkAnswer();
-      } else {
-        nextQuestion();
-      }
-    }
-
-    function checkAnswer() {
-      isAnswerChecked = true;
-      const q = quizQuestions[currentQuestionIndex];
-      const optionBtns = document.querySelectorAll('.option-btn');
-
-      // Play audio automatically if available
-      if (q.audioReading) {
-        speakJapaneseText(q.audioReading);
-      }
-
-      if (selectedOptionIndex === q.correctAnswerIndex) {
-        userScore++;
-        optionBtns[selectedOptionIndex].classList.add('correct');
-      } else {
-        if (selectedOptionIndex !== null) {
-          optionBtns[selectedOptionIndex].classList.add('incorrect');
-        }
-        optionBtns[q.correctAnswerIndex].classList.add('correct');
-      }
-
-      // Disable all option buttons
-      optionBtns.forEach(btn => btn.disabled = true);
-
-      // Display Explanation Banner
-      const expBox = document.getElementById('explanation-box');
-      expBox.innerHTML = `
-        <strong>${q.kanjiObj.kanji}</strong> (${getPrimaryReading(q.kanjiObj)})<br>
-        Arti: <em>${q.kanjiObj.meaning_id}</em>
-      `;
-      expBox.classList.remove('hidden');
-
-      // Update Button state
-      const btnSubmit = document.getElementById('btn-submit');
-      if (currentQuestionIndex < quizQuestions.length - 1) {
-        btnSubmit.innerText = "Lanjut";
-      } else {
-        btnSubmit.innerText = "Lihat Hasil";
-      }
-    }
-
-    function nextQuestion() {
-      if (currentQuestionIndex < quizQuestions.length - 1) {
-        currentQuestionIndex++;
-        renderQuestion();
-      } else {
-        showResults();
-      }
-    }
-
-    function showResults() {
-      const total = quizQuestions.length;
-      const percent = Math.round((userScore / total) * 100);
-
-      document.getElementById('score-text').innerText = `${userScore}/${total}`;
-      document.getElementById('score-percent').innerText = `${percent}%`;
-
-      const feedbackElem = document.getElementById('result-feedback-msg');
-      if (percent === 100) {
-        feedbackElem.innerText = "Sempurna! Kamu menguasai semua Kanji pada kuis ini!";
-      } else if (percent >= 70) {
-        feedbackElem.innerText = "Kerja bagus! Teruskan latihan untuk hasil maksimal.";
-      } else {
-        feedbackElem.innerText = "Tetap semangat! Pelajari kembali Kanji N5 dan coba lagi.";
-      }
-
-      showView('result');
-    }
-
-    function playQuestionAudio() {
-      const q = quizQuestions[currentQuestionIndex];
-      if (q && q.audioReading) {
-        speakJapaneseText(q.audioReading);
-      }
-    }
-
-    /* ==================================================
-       KANJI STUDY & DETAIL LIST ENGINE
-       ================================================== */
-    function renderKanjiGrid(filteredData = kanjiData) {
-      const grid = document.getElementById('kanji-grid');
-      grid.innerHTML = '';
-
-      filteredData.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'kanji-grid-item';
-        div.onclick = () => openKanjiDetail(item);
-        div.innerHTML = `
-          <span class="k-char">${item.kanji}</span>
-          <span class="k-mean">${item.meaning_id}</span>
-        `;
-        grid.appendChild(div);
-      });
-    }
-
-    function filterKanjiGrid() {
-      const query = document.getElementById('study-search').value.toLowerCase().trim();
-      const filtered = kanjiData.filter(item => 
-        item.kanji.includes(query) ||
-        item.meaning_id.toLowerCase().includes(query) ||
-        item.onyomi.some(o => o.includes(query)) ||
-        item.kunyomi.some(k => k.includes(query))
-      );
-      renderKanjiGrid(filtered);
-    }
-
-    function openKanjiDetail(item) {
-      selectedDetailKanji = item;
-      document.getElementById('detail-kanji-char').innerText = item.kanji;
-      document.getElementById('detail-meaning').innerText = item.meaning_id;
-      document.getElementById('detail-onyomi').innerText = item.onyomi.length > 0 ? item.onyomi.join(', ') : '-';
-      document.getElementById('detail-kunyomi').innerText = item.kunyomi.length > 0 ? item.kunyomi.join(', ') : '-';
-
-      const compoundsList = document.getElementById('detail-compounds-list');
-      compoundsList.innerHTML = '';
-
-      if (item.compounds && item.compounds.length > 0) {
-        item.compounds.forEach(c => {
-          const cDiv = document.createElement('div');
-          cDiv.className = 'compound-item';
-          cDiv.innerHTML = `
-            <div>
-              <div class="compound-word">${c.word}</div>
-              <div style="font-size: 0.8rem; color: var(--primary);">${c.reading}</div>
-            </div>
-            <div class="compound-sub">${c.meaning_id}</div>
-          `;
-          compoundsList.appendChild(cDiv);
-        });
-      } else {
-        compoundsList.innerHTML = '<div style="font-size: 0.85rem; color: var(--text-muted);">Tidak ada komporasi kata.</div>';
-      }
-
-      showView('detail');
-    }
-
-    function playDetailAudio() {
-      if (selectedDetailKanji) {
-        const reading = getPrimaryReading(selectedDetailKanji);
-        if (reading) speakJapaneseText(reading);
-      }
-    }
-
-    // Initialize App
-    window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-    });
-  </script>
+    <script src="script.js"></script>
 </body>
 </html>
