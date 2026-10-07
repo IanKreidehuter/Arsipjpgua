@@ -1,177 +1,401 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>N4 Summer Adventure - Japanese Learning</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts for typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Glass Player</title>
+<style>
+:root{
+  --bg1:#b7b6f2; --bg2:#7a74d6; --bg3:#4a3fa8;
+  --glass:rgba(255,255,255,.16); --glass2:rgba(255,255,255,.26); --line:rgba(255,255,255,.34);
+  --txt:#fff; --sub:rgba(255,255,255,.72); --acc:#a58bff; --acc2:#ff7ad9;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;color:var(--txt);
+  background:radial-gradient(900px 600px at 10% 0%,#d4d0ff 0,transparent 60%),radial-gradient(800px 700px at 100% 100%,#5a3fb5 0,transparent 60%),linear-gradient(160deg,var(--bg1),var(--bg2) 55%,var(--bg3));
+  background-attachment:fixed;display:flex;justify-content:center}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.app{width:100%;max-width:440px;height:100dvh;position:relative;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.view{display:none;flex:1;overflow-y:auto;padding:18px 18px 150px;scrollbar-width:none}
+.view::-webkit-scrollbar{display:none}
+.view.on{display:block}
+.glass{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 8px 32px rgba(40,20,120,.18),inset 0 1px 0 rgba(255,255,255,.3)}
+svg.i{width:1em;height:1em;fill:currentColor;flex:none}
+h1,h2,h3,p{margin:0}
+.hello{color:var(--sub);font-size:14px}
+.name{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.search{display:flex;gap:10px;align-items:center;margin:16px 0;padding:12px 14px;border-radius:16px}
+.search input{flex:1;background:none;border:0;color:#fff;font:inherit;font-size:14px;min-width:0}
+.search input::placeholder{color:var(--sub)}
+.hero{position:relative;border-radius:22px;padding:20px;min-height:190px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer}
+.hero .tag{font-size:12px;color:var(--sub)}
+.hero h2{font-size:30px;line-height:1.05;font-weight:800;letter-spacing:-.03em;margin:4px 0 4px;max-width:60%}
+.hero .meta{font-size:12px;color:var(--sub)}
+.hero .go{margin-top:12px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:rgba(255,255,255,.28);border:1px solid var(--line)}
+.hero .ring{position:absolute;right:26px;top:22px;width:110px;height:110px;border-radius:50%;border:3px solid rgba(255,255,255,.85);box-shadow:0 0 30px 4px var(--acc2),inset 0 0 30px var(--acc2)}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:22px 0 12px}
+.sec h3{font-size:16px;font-weight:700}
+.sec span{font-size:12px;color:var(--sub)}
+.chips{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.chip{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;min-width:58px}
+.chip b{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:400}
+.chip.sel b{background:linear-gradient(135deg,var(--acc),#7b5bff);border-color:#fff}
+.row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:18px;margin-bottom:10px;cursor:pointer;text-align:left;width:100%}
+.row.cur{background:var(--glass2);border-color:#fff}
+.cov{width:50px;height:50px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:20px;color:rgba(255,255,255,.9)}
+.row .t{flex:1;min-width:0}
+.row .t b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t small{font-size:12px;color:var(--sub)}
+.pbtn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.24);font-size:14px;flex:none}
+.tabs{display:flex;gap:8px;margin:14px 0;overflow-x:auto;scrollbar-width:none}
+.tab{padding:9px 16px;border-radius:999px;font-size:13px;white-space:nowrap}
+.tab.on{background:linear-gradient(135deg,var(--acc),#7b5bff);border-color:#fff}
+.new{display:flex;gap:14px;align-items:center;padding:18px;border-radius:18px;margin-bottom:12px;width:100%;text-align:left}
+.new i{font-style:normal;font-size:26px}
+.empty{padding:28px 18px;text-align:center;color:var(--sub);font-size:14px;line-height:1.5}
+.empty code{background:rgba(0,0,0,.18);padding:2px 6px;border-radius:6px;font-size:12px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.top .ic{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px}
+.np-title{text-align:center;font-size:12px;color:var(--sub)}
+.np-title b{display:block;color:#fff;font-size:14px}
+.art{position:relative;margin:22px auto 20px;width:100%;aspect-ratio:1;border-radius:28px;overflow:hidden;display:grid;place-items:center;font-size:92px;color:rgba(255,255,255,.9)}
+.art video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+.np-meta{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.np-meta h2{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.np-meta p{color:var(--sub);font-size:14px;margin-top:2px}
+.fav{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:20px;flex:none}
+.fav.on{color:#ff6fa8}
+.seek{margin:22px 0 4px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:5px;background:linear-gradient(90deg,#fff var(--p,0%),rgba(255,255,255,.3) var(--p,0%));outline-offset:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#ff8ad8;border:2px solid #fff}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#ff8ad8;border:2px solid #fff}
+.times{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:8px}
+.ctl{display:flex;justify-content:space-between;align-items:center;margin:14px 6px 0;font-size:24px}
+.ctl .on{color:var(--acc2)}
+.ctl .big{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.9);color:#5a4bd0;display:grid;place-items:center;font-size:30px;box-shadow:0 10px 30px rgba(60,30,160,.4)}
+.mini{position:absolute;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));padding:8px 10px;border-radius:20px;display:none;align-items:center;gap:10px;cursor:pointer}
+.mini.on{display:flex}
+.mini .cov{width:40px;height:40px;font-size:16px}
+.mini .t{flex:1;min-width:0;font-size:13px}.mini .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini .t small{color:var(--sub)}
+.mini .bar{position:absolute;left:18px;right:18px;bottom:3px;height:2px;border-radius:2px;background:rgba(255,255,255,.25)}
+.mini .bar i{display:block;height:100%;width:0;background:#fff;border-radius:2px}
+nav{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;padding:8px;border-radius:26px}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:18px;font-size:11px;color:var(--sub)}
+nav button .i{font-size:20px}
+nav button.on{background:var(--glass2);color:#fff;border:1px solid var(--line)}
+.toast{position:absolute;top:14px;left:50%;transform:translateX(-50%);padding:8px 14px;border-radius:999px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:5}
+.toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
 <body>
-    <!-- Background is handled via CSS cover -->
-    <div class="bg-overlay"></div>
+<div class="app">
 
-    <div id="app-container">
-        <!-- Error / Loading Overlay -->
-        <div id="status-overlay" class="active">
-            <div class="spinner"></div>
-            <p id="status-message">Memuat petualangan...</p>
-        </div>
+<!-- ============ CONFIG ============
+  Leave OWNER/REPO empty when this page is hosted on GitHub Pages (owner.github.io/repo):
+  they are detected from the URL. Otherwise fill them in.
+  FOLDER: only scan this folder ("" = whole repo).  BRANCH: "HEAD" = default branch.
+-->
+<script>
+const CONFIG = { OWNER:"", REPO:"", BRANCH:"HEAD", FOLDER:"", TOKEN:"" };
+</script>
 
-        <!-- Desktop Sidebar / Mobile Top bar (Hidden on Home) -->
-        <nav id="main-nav">
-            <div class="nav-brand">N4 Summer</div>
-            <div class="nav-links">
-                <button class="nav-btn active" data-target="home">Home</button>
-                <button class="nav-btn" data-target="intro-kotoba">Kotoba</button>
-                <button class="nav-btn" data-target="intro-kanji">Kanji</button>
-                <button class="nav-btn" data-target="intro-grammar">Grammar</button>
-                <button class="nav-btn" data-target="intro-quiz">Quiz</button>
-            </div>
-        </nav>
+<div class="toast glass" id="toast"></div>
 
-        <main id="main-content">
-            <!-- 1. HOME VIEW -->
-            <section id="view-home" class="view active">
-                <div class="hero-poster">
-                    <h1>Japanese N4</h1>
-                    <h2>言葉と漢字を学ぼう</h2>
-                    <p>Learn Japanese vocabulary and Kanji</p>
-                </div>
-                <div class="home-menu">
-                    <div class="menu-card" data-target="intro-kotoba">
-                        <h3>KOTOBA</h3>
-                        <p>294 Vocabulary</p>
-                    </div>
-                    <div class="menu-card" data-target="intro-kanji">
-                        <h3>KANJI</h3>
-                        <p>197 Characters</p>
-                    </div>
-                    <div class="menu-card" data-target="intro-kanji-swipe">
-                        <h3>KANJI CARDS</h3>
-                        <p>Flashcard Mode</p>
-                    </div>
-                    <div class="menu-card" data-target="intro-kotoba-swipe">
-                        <h3>KOTOBA CARDS</h3>
-                        <p>Flashcard Mode</p>
-                    </div>
-                    <div class="menu-card" data-target="intro-grammar">
-                        <h3>GRAMMAR</h3>
-                        <p>文法</p>
-                    </div>
-                    <div class="menu-card" data-target="intro-quiz">
-                        <h3>QUIZ</h3>
-                        <p>クイズ</p>
-                    </div>
-                </div>
-            </section>
+<!-- HOME -->
+<section class="view on" id="v-home">
+  <div class="top"><div><p class="hello" id="hello">Good morning</p><h1 class="name" id="repoName">My Media</h1></div></div>
+  <label class="search glass"><svg class="i"><use href="#search"/></svg><input id="q" type="search" placeholder="Search songs, videos…"></label>
+  <div class="hero glass" id="hero" role="button" tabindex="0">
+    <div class="ring"></div>
+    <span class="tag">Today's pick</span><h2 id="heroT">Loading…</h2><span class="meta" id="heroM"></span>
+    <span class="go"><svg class="i"><use href="#play"/></svg></span>
+  </div>
+  <div class="sec"><h3>Categories</h3><span id="catAll" role="button" tabindex="0">See all</span></div>
+  <div class="chips" id="cats"></div>
+  <div class="sec"><h3 id="listH">Recently played</h3><span id="count"></span></div>
+  <div id="homeList"></div>
+</section>
 
-            <!-- 2. INTRO POSTER VIEW (Dynamic) -->
-            <section id="view-intro" class="view">
-                <div class="intro-poster-container">
-                    <h1 id="intro-title">TITLE</h1>
-                    <h2 id="intro-subtitle">Subtitle</h2>
-                    <p id="intro-desc">Description</p>
-                    <button id="intro-play-btn" class="play-btn">
-                        <span class="play-icon">▶</span> PLAY
-                    </button>
-                    <button class="back-text-btn" onclick="app.navigate('home')">← Back to Home</button>
-                </div>
-            </section>
+<!-- NOW PLAYING -->
+<section class="view" id="v-play">
+  <div class="top">
+    <button class="ic glass" id="back" aria-label="Back"><svg class="i"><use href="#down"/></svg></button>
+    <div class="np-title">Now playing<b id="npFrom">Library</b></div>
+    <button class="ic glass" id="vid" aria-label="Fullscreen video"><svg class="i"><use href="#film"/></svg></button>
+  </div>
+  <div class="art glass" id="art"><video id="m" playsinline preload="metadata"></video><svg class="i" id="artIc"><use href="#note"/></svg></div>
+  <div class="np-meta"><div style="min-width:0"><h2 id="npT">Nothing playing</h2><p id="npA">Pick a track from your library</p></div>
+    <button class="fav glass" id="fav" aria-label="Favorite"><svg class="i"><use href="#heart"/></svg></button></div>
+  <div class="seek"><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek"><div class="times"><span id="cur">0:00</span><span id="dur">0:00</span></div></div>
+  <div class="ctl">
+    <button id="shuf" aria-label="Shuffle"><svg class="i"><use href="#shuffle"/></svg></button>
+    <button id="prev" aria-label="Previous"><svg class="i"><use href="#prev"/></svg></button>
+    <button class="big" id="pp" aria-label="Play or pause"><svg class="i"><use href="#play"/></svg></button>
+    <button id="next" aria-label="Next"><svg class="i"><use href="#next"/></svg></button>
+    <button id="rep" aria-label="Repeat"><svg class="i"><use href="#repeat"/></svg></button>
+  </div>
+  <div class="sec"><h3>Up next</h3></div><div id="queue"></div>
+</section>
 
-            <!-- 3. KOTOBA LIST VIEW -->
-            <section id="view-kotoba-list" class="view">
-                <div class="view-header">
-                    <h2>Kotoba Dictionary</h2>
-                    <div class="controls">
-                        <input type="text" id="kotoba-search" placeholder="Search hiragana, kanji, meaning...">
-                        <select id="kotoba-filter">
-                            <option value="all">All Categories (Bab)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="card-grid" id="kotoba-grid"></div>
-            </section>
+<!-- LIBRARY -->
+<section class="view" id="v-lib">
+  <div class="top"><h1 class="name">My Library</h1><span class="hello" id="libCount"></span></div>
+  <div class="tabs" id="tabs">
+    <button class="tab glass on" data-t="playlists">Playlists</button>
+    <button class="tab glass" data-t="songs">Songs</button>
+    <button class="tab glass" data-t="videos">Videos</button>
+    <button class="tab glass" data-t="favs">Favorites</button>
+  </div>
+  <div id="libList"></div>
+</section>
 
-            <!-- 4. KANJI LIST VIEW -->
-            <section id="view-kanji-list" class="view">
-                <div class="view-header">
-                    <h2>Kanji Dictionary</h2>
-                    <div class="controls">
-                        <input type="text" id="kanji-search" placeholder="Search kanji, reading, meaning...">
-                    </div>
-                </div>
-                <div class="card-grid" id="kanji-grid"></div>
-            </section>
+<div class="mini glass" id="mini"><div class="cov" id="miniCov"></div><div class="t"><b id="miniT"></b><small id="miniA"></small></div>
+  <button class="pbtn" id="miniPP" aria-label="Play or pause"><svg class="i"><use href="#play"/></svg></button><div class="bar"><i id="miniBar"></i></div></div>
 
-            <!-- 5. KOTOBA DETAIL VIEW -->
-            <section id="view-kotoba-detail" class="view detail-view">
-                <button class="back-btn" onclick="app.navigate('kotoba-list')">← Back</button>
-                <div class="detail-card">
-                    <div class="detail-category" id="kd-bab">Category</div>
-                    <div class="detail-hiragana" id="kd-hiragana">ひらがな</div>
-                    <div class="detail-kanji" id="kd-kanji">漢字</div>
-                    <div class="detail-meaning" id="kd-arti">arti</div>
-                </div>
-            </section>
+<nav class="glass" id="nav">
+  <button class="on" data-v="home"><svg class="i"><use href="#home"/></svg>Home</button>
+  <button data-v="play"><svg class="i"><use href="#note"/></svg>Playing</button>
+  <button data-v="lib"><svg class="i"><use href="#lib"/></svg>Library</button>
+</nav>
+</div>
 
-            <!-- 6. KANJI DETAIL VIEW -->
-            <section id="view-kanji-detail" class="view detail-view">
-                <button class="back-btn" onclick="app.navigate('kanji-list')">← Back</button>
-                <div class="detail-card kanji-detail">
-                    <div class="kd-main-char" id="kand-kanji">漢</div>
-                    <div class="kd-meaning" id="kand-arti">arti</div>
-                    <div class="reading-grid">
-                        <div class="reading-box">
-                            <span>ON</span>
-                            <div id="kand-on">ON</div>
-                        </div>
-                        <div class="reading-box">
-                            <span>KUN</span>
-                            <div id="kand-kun">kun</div>
-                        </div>
-                    </div>
-                    <div class="example-words">
-                        <h3>Examples:</h3>
-                        <ul id="kand-kotoba-list"></ul>
-                    </div>
-                    <div class="source-page" id="kand-page">Source page: X</div>
-                </div>
-            </section>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></symbol>
+<symbol id="pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></symbol>
+<symbol id="next" viewBox="0 0 24 24"><path d="M6 6.5v11a.8.8 0 0 0 1.2.7l8-5.5a.8.8 0 0 0 0-1.4l-8-5.5A.8.8 0 0 0 6 6.5zM17 6h2v12h-2z"/></symbol>
+<symbol id="prev" viewBox="0 0 24 24"><path d="M18 6.5v11a.8.8 0 0 1-1.2.7l-8-5.5a.8.8 0 0 1 0-1.4l8-5.5A.8.8 0 0 1 18 6.5zM5 6h2v12H5z"/></symbol>
+<symbol id="shuffle" viewBox="0 0 24 24"><path d="M16 4h4v4l-1.6-1.6L5.4 19.4 4 18 17 5 16 4zm4 12v4h-4l1.6-1.6-3.4-3.4 1.4-1.4 3.4 3.4L20 16zM4 6l1.4-1.4 4.6 4.6-1.4 1.4z"/></symbol>
+<symbol id="repeat" viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></symbol>
+<symbol id="heart" viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1.2 8.4 3 5 6.4 5c2 0 3.6 1.1 5.6 3.2C14 6.100 15.600 5 17.600 5 21 5 22.800 8.400 21.500 11.700 19.500 16.400 12 21 12 21z"/></symbol>
+<symbol id="home" viewBox="0 0 24 24"><path d="M12 3 3 10.500V21h6v-6h6v6h6V10.500z"/></symbol>
+<symbol id="lib" viewBox="0 0 24 24"><path d="M4 4h4v16H4zm6 0h4v16h-4zm6.500.5 3.800-1 3.200 15.500-3.800 1z" transform="scale(.9) translate(1 1)"/></symbol>
+<symbol id="search" viewBox="0 0 24 24"><path d="M10.500 3a7.500 7.500 0 0 1 5.900 12.100l4.300 4.300-1.400 1.400-4.300-4.300A7.500 7.500 0 1 1 10.500 3zm0 2a5.500 5.500 0 1 0 0 11 5.500 5.500 0 0 0 0-11z"/></symbol>
+<symbol id="note" viewBox="0 0 24 24"><path d="M9 3v12.300A3.500 3.500 0 1 0 11 18.500V8l8-1.500v7.800A3.500 3.500 0 1 0 21 17.500V3z" transform="scale(.9) translate(1 1)"/></symbol>
+<symbol id="film" viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm2 2v2h2V6zm0 4v2h2v-2zm0 4v2h2v-2zm10-8v2h2V6zm0 4v2h2v-2zm0 4v2h2v-2zM10 7v10h4V7z"/></symbol>
+<symbol id="down" viewBox="0 0 24 24"><path d="M5.500 8 12 14.500 18.500 8 20 9.500l-8 8-8-8z"/></symbol>
+<symbol id="folder" viewBox="0 0 24 24"><path d="M3 5h7l2 2h9v12H3z"/></symbol>
+</defs></svg>
 
-            <!-- 7. SWIPE CARDS VIEW (Reusable for Kanji & Kotoba) -->
-            <section id="view-swipe" class="view">
-                <button class="back-btn swipe-back" onclick="app.navigate('home')">← Home</button>
-                <div class="swipe-container">
-                    <div class="swipe-progress">
-                        <span id="swipe-current">1</span> / <span id="swipe-total">197</span>
-                    </div>
-                    <div class="swipe-card" id="swipe-card-element">
-                        <!-- Content injected via JS -->
-                    </div>
-                    <div class="swipe-controls">
-                        <button id="btn-prev" class="control-btn">← Prev</button>
-                        <button id="btn-shuffle" class="control-btn shuffle-btn">Shuffle</button>
-                        <button id="btn-next" class="control-btn">Next →</button>
-                    </div>
-                    <p class="swipe-hint">Swipe left/right on mobile</p>
-                </div>
-            </section>
-        </main>
-    </div>
+<script>
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const ic=n=>`<svg class="i"><use href="#${n}"/></svg>`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=t=>isFinite(t)?Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0'):'0:00';
+const ls={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
+function grad(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;const a=h%360,b=(a+50+h%60)%360;
+  return `linear-gradient(135deg,hsl(${a} 75% 62%),hsl(${b} 80% 48%))`}
 
-    <!-- Mobile Bottom Nav -->
-    <nav id="mobile-nav">
-        <button class="nav-btn active" data-target="home">Home</button>
-        <button class="nav-btn" data-target="intro-kotoba">Kotoba</button>
-        <button class="nav-btn" data-target="intro-kanji">Kanji</button>
-        <button class="nav-btn" data-target="intro-grammar">Grammar</button>
-        <button class="nav-btn" data-target="intro-quiz">Quiz</button>
-    </nav>
+/* ---------- state ---------- */
+let tracks=[], list=[], idx=-1, shuffle=false, repeat=0; // repeat 0 off,1 all,2 one
+let favs=ls.get('gp_favs',[]), recent=ls.get('gp_recent',[]);
+let lib={tab:'playlists',folder:null}, homeFilter=null;
+const m=$('#m');
 
-    <script src="script.js"></script>
+/* ---------- GitHub: read repo, find mp3/mp4, build paths ---------- */
+function detectRepo(){
+  let {OWNER:o,REPO:r}=CONFIG;
+  if((!o||!r)&&location.hostname.endsWith('.github.io')){
+    o=o||location.hostname.split('.')[0]; r=r||location.pathname.split('/')[1]||(o+'.github.io');
+  }
+  return {o,r};
+}
+function mediaUrl(o,r,path){
+  const enc=path.split('/').map(encodeURIComponent).join('/');
+  const onPages=location.hostname.toLowerCase()===`${o}.github.io`.toLowerCase();
+  if(onPages){ // same site: relative path from the repo root
+    const base=location.pathname.split('/')[1]===r?`/${r}/`:'/';
+    return base+enc;
+  }
+  return `https://raw.githubusercontent.com/${o}/${r}/${CONFIG.BRANCH||'HEAD'}/${enc}`;
+}
+function pretty(name){
+  return name.replace(/\.[^.]+$/,'').replace(/^\d+[\s._-]+/,'').replace(/[_]+/g,' ').replace(/\s+/g,' ').trim();
+}
+function toTrack(path,o,r){
+  const parts=path.split('/'), file=parts.pop(), ext=file.split('.').pop().toLowerCase();
+  let title=pretty(file), artist='';
+  const mt=title.match(/^(.+?)\s+-\s+(.+)$/); if(mt){artist=mt[1];title=mt[2]}
+  const folder=parts.length?parts[parts.length-1]:'All files';
+  return {id:path,path,title,artist:artist||folder,folder,video:ext==='mp4',url:mediaUrl(o,r,path)};
+}
+async function load(){
+  const {o,r}=detectRepo();
+  if(!o||!r){showSetup();return}
+  $('#repoName').textContent=pretty(r);
+  const key=`gp_cache_${o}/${r}/${CONFIG.FOLDER}`;
+  try{
+    const c=JSON.parse(sessionStorage.getItem(key)||'null');
+    if(c&&Date.now()-c.t<600000){tracks=c.v;return ready()}
+  }catch{}
+  try{
+    const h={Accept:'application/vnd.github+json'}; if(CONFIG.TOKEN)h.Authorization='Bearer '+CONFIG.TOKEN;
+    const res=await fetch(`https://api.github.com/repos/${o}/${r}/git/trees/${CONFIG.BRANCH||'HEAD'}?recursive=1`,{headers:h});
+    if(res.status===403)throw new Error('GitHub rate limit reached. Try again in a few minutes.');
+    if(res.status===404)throw new Error(`Repo ${o}/${r} not found, or it is private.`);
+    if(!res.ok)throw new Error('GitHub returned '+res.status);
+    const data=await res.json(), pre=CONFIG.FOLDER?CONFIG.FOLDER.replace(/^\/|\/$/g,'')+'/':'';
+    tracks=data.tree.filter(f=>f.type==='blob'&&/\.(mp3|mp4)$/i.test(f.path)&&f.path.startsWith(pre))
+      .map(f=>toTrack(f.path,o,r)).sort((a,b)=>a.path.localeCompare(b.path,undefined,{numeric:true}));
+    try{sessionStorage.setItem(key,JSON.stringify({t:Date.now(),v:tracks}))}catch{}
+    ready();
+  }catch(e){
+    $('#heroT').textContent='Couldn’t load';$('#heroM').textContent='';
+    $('#homeList').innerHTML=`<div class="empty glass" style="border-radius:18px">${esc(e.message)}</div>`;
+  }
+}
+function showSetup(){
+  $('#heroT').textContent='Set up';
+  $('#homeList').innerHTML=`<div class="empty glass" style="border-radius:18px">Open this file and set <code>OWNER</code> and <code>REPO</code> in <code>CONFIG</code>, or host it on GitHub Pages and they are detected automatically.</div>`;
+}
+
+/* ---------- render ---------- */
+function folders(){const f={};tracks.forEach(t=>(f[t.folder]??=[]).push(t));return f}
+function rowHtml(t,i,src){
+  const cur=idx>=0&&list[idx]&&list[idx].id===t.id;
+  return `<button class="row glass ${cur?'cur':''}" data-src="${src}" data-id="${esc(t.id)}">
+    <div class="cov" style="background:${grad(t.title)}">${ic(t.video?'film':'note')}</div>
+    <div class="t"><b>${esc(t.title)}</b><small>${esc(t.artist)}${t.video?' · Video':''}</small></div>
+    <span class="pbtn">${ic(cur&&!m.paused?'pause':'play')}</span></button>`;
+}
+function renderHome(){
+  const h=new Date().getHours();
+  $('#hello').textContent=h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+  const q=$('#q').value.trim().toLowerCase(), f=folders();
+  if(tracks.length){
+    const pick=tracks[(new Date().getDate()*7)%tracks.length];
+    $('#heroT').textContent=pick.title;
+    $('#heroM').textContent=`${pick.artist} · ${tracks.length} files`;
+    $('#hero').style.background=`${grad(pick.title)}, var(--glass)`;
+    $('#hero').dataset.id=pick.id;
+  }
+  const cats=[['__all','All',ic('lib')],['__song','Music',ic('note')],['__vid','Video',ic('film')],...Object.keys(f).map(k=>[k,k,ic('folder')])];
+  $('#cats').innerHTML=cats.map(([k,l,i])=>`<button class="chip ${homeFilter===k?'sel':''}" data-k="${esc(k)}"><b class="glass">${i}</b>${esc(l.length>9?l.slice(0,8)+'…':l)}</button>`).join('');
+  let items; 
+  if(q){items=tracks.filter(t=>(t.title+' '+t.artist).toLowerCase().includes(q));$('#listH').textContent='Results'}
+  else if(homeFilter){items=homeFilter==='__all'?tracks:homeFilter==='__song'?tracks.filter(t=>!t.video):homeFilter==='__vid'?tracks.filter(t=>t.video):f[homeFilter]||[];$('#listH').textContent='Browse'}
+  else{items=recent.map(id=>tracks.find(t=>t.id===id)).filter(Boolean);$('#listH').textContent='Recently played';
+    if(!items.length)items=tracks.slice(0,6),$('#listH').textContent='Start with'}
+  $('#count').textContent=tracks.length?items.length+' items':'';
+  $('#homeList').innerHTML=items.length?items.map((t,i)=>rowHtml(t,i,'home')).join(''):
+    `<div class="empty">${tracks.length?'Nothing matches.':'No .mp3 or .mp4 files found in this repo yet.'}</div>`;
+  $('#homeList')._items=items;
+}
+function renderLib(){
+  const f=folders(), t=lib.tab; let html='', items=[];
+  $$('#tabs .tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  if(t==='playlists'&&!lib.folder){
+    html=`<button class="new glass" id="newShuffle" style="border-radius:18px"><i>${ic('shuffle')}</i><div><b>Shuffle everything</b><br><small style="color:var(--sub)">Play all ${tracks.length} files</small></div></button>`;
+    html+=Object.entries(f).map(([k,v])=>`<button class="row glass" data-folder="${esc(k)}"><div class="cov" style="background:${grad(k)}">${ic('folder')}</div><div class="t"><b>${esc(k)}</b><small>${v.length} items</small></div><span class="pbtn">${ic('play')}</span></button>`).join('');
+    $('#libCount').textContent=Object.keys(f).length+' playlists';
+  }else{
+    items=t==='songs'?tracks.filter(x=>!x.video):t==='videos'?tracks.filter(x=>x.video):t==='favs'?tracks.filter(x=>favs.includes(x.id)):(f[lib.folder]||[]);
+    if(lib.folder)html+=`<button class="tab glass" id="libBack" style="margin-bottom:12px">‹ ${esc(lib.folder)}</button>`;
+    html+=items.length?items.map((x,i)=>rowHtml(x,i,'lib')).join(''):`<div class="empty">${t==='favs'?'Tap the heart on a track to save it here.':'Nothing here yet.'}</div>`;
+    $('#libCount').textContent=items.length+' items';
+  }
+  $('#libList').innerHTML=html; $('#libList')._items=items;
+}
+function renderQueue(){
+  $('#queue').innerHTML=list.slice(idx+1,idx+8).map(t=>rowHtml(t,0,'queue')).join('')||'<div class="empty">End of queue.</div>';
+}
+function ready(){renderHome();renderLib()}
+
+/* ---------- player ---------- */
+function play(items,i){
+  list=items.slice(); idx=i; const t=list[idx]; if(!t)return;
+  m.src=t.url; m.play().catch(()=>toast('Tap play to start'));
+  recent=[t.id,...recent.filter(x=>x!==t.id)].slice(0,12); ls.set('gp_recent',recent);
+  updateMeta(); 
+}
+function updateMeta(){
+  const t=list[idx]; if(!t)return;
+  $('#npT').textContent=t.title; $('#npA').textContent=t.artist;
+  $('#npFrom').textContent=t.folder;
+  $('#art').style.background=grad(t.title);
+  m.style.display=t.video?'block':'none'; $('#artIc').style.display=t.video?'none':'block';
+  $('#vid').style.visibility=t.video?'visible':'hidden';
+  $('#miniCov').style.background=grad(t.title);$('#miniT').textContent=t.title;$('#miniA').textContent=t.artist;
+  $('#mini').classList.add('on'); favUI(); renderQueue(); syncPP();
+  if('mediaSession' in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist});
+}
+function syncPP(){
+  const n=m.paused?'play':'pause';
+  $('#pp').innerHTML=ic(n);$('#miniPP').innerHTML=ic(n);
+  $$('.row.cur .pbtn').forEach(p=>p.innerHTML=ic(n));
+}
+function step(d,auto){
+  if(!list.length)return;
+  if(auto&&repeat===2){m.currentTime=0;m.play();return}
+  let n;
+  if(shuffle&&list.length>1){do n=Math.floor(Math.random()*list.length);while(n===idx)}
+  else{n=idx+d; if(n>=list.length){if(repeat===1||!auto)n=0;else{m.pause();return}} if(n<0)n=list.length-1}
+  idx=n; const t=list[idx]; m.src=t.url; m.play().catch(()=>{});
+  recent=[t.id,...recent.filter(x=>x!==t.id)].slice(0,12); ls.set('gp_recent',recent);
+  updateMeta(); renderHome();
+}
+function toggle(){if(!list.length){if(tracks.length)play(tracks,0);return}m.paused?m.play():m.pause()}
+function favUI(){const t=list[idx];$('#fav').classList.toggle('on',!!t&&favs.includes(t.id))}
+
+m.addEventListener('play',syncPP);m.addEventListener('pause',syncPP);
+m.addEventListener('ended',()=>step(1,true));
+m.addEventListener('error',()=>{if(m.src){toast('Can’t play this file. Skipping…');setTimeout(()=>step(1,true),900)}});
+m.addEventListener('loadedmetadata',()=>$('#dur').textContent=fmt(m.duration));
+m.addEventListener('timeupdate',()=>{
+  if(!m.duration)return; const p=m.currentTime/m.duration*100;
+  const s=$('#seek'); if(!s._drag){s.value=p*10;s.style.setProperty('--p',p+'%')}
+  $('#cur').textContent=fmt(m.currentTime);$('#miniBar').style.width=p+'%';
+});
+$('#seek').addEventListener('input',e=>{const s=e.target;s._drag=1;s.style.setProperty('--p',s.value/10+'%');$('#cur').textContent=fmt(m.duration*s.value/1000)});
+$('#seek').addEventListener('change',e=>{const s=e.target;if(m.duration)m.currentTime=m.duration*s.value/1000;s._drag=0});
+$('#pp').onclick=toggle;$('#miniPP').onclick=e=>{e.stopPropagation();toggle()};
+$('#next').onclick=()=>step(1);$('#prev').onclick=()=>m.currentTime>3?(m.currentTime=0):step(-1);
+$('#shuf').onclick=e=>{shuffle=!shuffle;e.currentTarget.classList.toggle('on',shuffle);toast(shuffle?'Shuffle on':'Shuffle off')};
+$('#rep').onclick=e=>{repeat=(repeat+1)%3;e.currentTarget.classList.toggle('on',repeat>0);toast(['Repeat off','Repeat all','Repeat one'][repeat])};
+$('#fav').onclick=()=>{const t=list[idx];if(!t)return;favs=favs.includes(t.id)?favs.filter(x=>x!==t.id):[...favs,t.id];ls.set('gp_favs',favs);favUI();renderLib()};
+$('#vid').onclick=()=>{(m.requestFullscreen||m.webkitEnterFullscreen||(()=>{})).call(m)};
+$('#back').onclick=()=>show('home');$('#mini').onclick=()=>show('play');
+if('mediaSession' in navigator){
+  navigator.mediaSession.setActionHandler('nexttrack',()=>step(1));
+  navigator.mediaSession.setActionHandler('previoustrack',()=>step(-1));
+}
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'&&e.target.type!=='range')return;
+  if(e.code==='Space'){e.preventDefault();toggle()}
+  if(e.code==='ArrowRight'&&e.shiftKey)step(1);if(e.code==='ArrowLeft'&&e.shiftKey)step(-1);
+});
+
+/* ---------- navigation & events ---------- */
+function show(v){
+  $$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
+  $$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  $('.mini').style.display=v==='play'?'none':'';
+}
+$$('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+$('#q').oninput=renderHome;
+$('#hero').onclick=()=>{const t=tracks.find(x=>x.id===$('#hero').dataset.id);if(t){play(tracks,tracks.indexOf(t));show('play')}};
+$('#catAll').onclick=()=>{homeFilter='__all';renderHome()};
+$('#cats').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;homeFilter=homeFilter===c.dataset.k?null:c.dataset.k;renderHome()};
+$('#tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;lib={tab:b.dataset.t,folder:null};renderLib()};
+function rowClick(box,e){
+  const r=e.target.closest('.row');if(!r)return null;
+  if(r.dataset.folder){lib.folder=r.dataset.folder;renderLib();return null}
+  return r;
+}
+$('#homeList').onclick=e=>{const r=rowClick($('#homeList'),e);if(!r)return;const it=$('#homeList')._items;const i=it.findIndex(t=>t.id===r.dataset.id);
+  if(list[idx]&&list[idx].id===r.dataset.id){toggle();return}play(it,i);renderHome();show('play')};
+$('#libList').onclick=e=>{
+  if(e.target.closest('#libBack')){lib.folder=null;renderLib();return}
+  if(e.target.closest('#newShuffle')){shuffle=true;$('#shuf').classList.add('on');play(tracks,Math.floor(Math.random()*tracks.length));show('play');return}
+  const r=rowClick($('#libList'),e);if(!r)return;const it=$('#libList')._items;const i=it.findIndex(t=>t.id===r.dataset.id);
+  if(list[idx]&&list[idx].id===r.dataset.id){toggle();return}play(it,i);renderLib();show('play')};
+$('#queue').onclick=e=>{const r=e.target.closest('.row');if(!r)return;idx=list.findIndex(t=>t.id===r.dataset.id);const t=list[idx];m.src=t.url;m.play();updateMeta();renderHome()};
+
+load();
+</script>
 </body>
 </html>
