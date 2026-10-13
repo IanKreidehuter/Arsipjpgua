@@ -3,6 +3,10 @@ name: Build N4App APK
 
 "on":
   workflow_dispatch:
+  push:
+    paths:
+      - "N4App.zip"
+      - ".github/workflows/build-apk.yml"
 
 permissions:
   contents: read
@@ -10,38 +14,50 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Download repository
         uses: actions/checkout@v4
 
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.7'
+          gradle-version: "8.7"
 
       - name: Extract Android project
         run: |
           mkdir -p android-project
           unzip -q N4App.zip -d android-project
-          find android-project -name settings.gradle.kts -o -name settings.gradle
 
-      - name: Find project directory
+      - name: Find Android project
         run: |
-          SETTINGS=$(find android-project -name settings.gradle.kts -o -name settings.gradle | head -n 1)
+          SETTINGS=$(find android-project -type f \( \
+            -name settings.gradle -o \
+            -name settings.gradle.kts \
+          \) -print -quit)
+
           if [ -z "$SETTINGS" ]; then
-            echo "No Gradle settings file found in N4App.zip"
+            echo "ERROR: No settings.gradle or settings.gradle.kts found in N4App.zip"
+            echo "The ZIP may not contain a complete Android project."
             exit 1
           fi
-          echo "PROJECT_DIR=$(dirname "$SETTINGS")" >> "$GITHUB_ENV"
+
+          PROJECT_DIR=$(dirname "$SETTINGS")
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Found Android project at: $PROJECT_DIR"
 
       - name: Build debug APK
         run: gradle -p "$PROJECT_DIR" assembleDebug
+
+      - name: Find APK
+        run: |
+          find android-project -type f -name "*.apk" -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -49,3 +65,4 @@ jobs:
           name: N4App-APK
           path: android-project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+          retention-days: 7
