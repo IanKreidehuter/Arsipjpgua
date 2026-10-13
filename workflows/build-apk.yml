@@ -1,0 +1,44 @@
+name: Build N4App APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Find Android project
+        run: |
+          if [ -f settings.gradle.kts ]; then
+            echo "PROJECT_DIR=." >> "$GITHUB_ENV"
+          elif [ -f N4App/settings.gradle.kts ]; then
+            echo "PROJECT_DIR=N4App" >> "$GITHUB_ENV"
+          else
+            echo "Cannot find settings.gradle.kts"
+            exit 1
+          fi
+
+      - name: Build APK
+        run: gradle -p "$PROJECT_DIR" assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: N4App-APK
+          path: '**/app/build/outputs/apk/debug/*.apk'
+          if-no-files-found: error
+          
